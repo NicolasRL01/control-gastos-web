@@ -2,6 +2,9 @@
     ViewData["Title"] = "Gráfico Comparativo - Presupuesto vs Ejecución";
 }
 
+<!-- Referencias necesarias para Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -99,10 +102,17 @@
                     <h5 class="mb-0">Gráfico Comparativo por Tipo de Gasto</h5>
                 </div>
                 <div class="card-body">
-                    <div id="grafico-container">
-                        <canvas id="graficoComparativo" width="400" height="200"></canvas>
+                    <!-- Mensaje de estado -->
+                    <div id="mensaje-estado" class="alert alert-info" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="texto-estado">Cargando datos...</span>
                     </div>
-                    <div id="mensaje-sin-datos" class="text-center text-muted" style="display: block;">
+
+                    <div id="grafico-container" style="position: relative; height: 400px;">
+                        <canvas id="graficoComparativo"></canvas>
+                    </div>
+                    
+                    <div id="mensaje-sin-datos" class="text-center text-muted" style="display: none;">
                         <i class="fas fa-info-circle fa-2x mb-3"></i>
                         <p class="h5">No se encontraron datos para el período seleccionado</p>
                         <p class="text-muted">Verifique que existan presupuestos y gastos para las fechas indicadas</p>
@@ -122,39 +132,84 @@
         return new Intl.NumberFormat('es-CR', {
             style: 'currency',
             currency: 'CRC',
-            minimumFractionDigits: 2
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
         }).format(valor);
+    }
+
+    // Función para mostrar mensaje de estado
+    function mostrarEstado(mensaje, tipo) {
+        tipo = tipo || 'info';
+        const mensajeDiv = document.getElementById('mensaje-estado');
+        const textoSpan = document.getElementById('texto-estado');
+        
+        if (!mensajeDiv || !textoSpan) return;
+        
+        mensajeDiv.className = 'alert alert-' + tipo;
+        textoSpan.textContent = mensaje;
+        mensajeDiv.style.display = 'block';
+        
+        // Ocultar automáticamente después de 5 segundos si es éxito
+        if (tipo === 'success') {
+            setTimeout(function() {
+                mensajeDiv.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Función para ocultar mensaje de estado
+    function ocultarEstado() {
+        const mensajeDiv = document.getElementById('mensaje-estado');
+        if (mensajeDiv) {
+            mensajeDiv.style.display = 'none';
+        }
     }
 
     // Función para actualizar las tarjetas de totales
     function actualizarTotales(totalPresupuestado, totalEjecutado) {
-        document.getElementById('totalPresupuestado').textContent = formatearMoneda(totalPresupuestado);
-        document.getElementById('totalEjecutado').textContent = formatearMoneda(totalEjecutado);
+        const elemPresupuestado = document.getElementById('totalPresupuestado');
+        const elemEjecutado = document.getElementById('totalEjecutado');
+        const elemPorcentaje = document.getElementById('porcentajeEjecucion');
+        
+        if (elemPresupuestado) elemPresupuestado.textContent = formatearMoneda(totalPresupuestado);
+        if (elemEjecutado) elemEjecutado.textContent = formatearMoneda(totalEjecutado);
         
         const porcentaje = totalPresupuestado > 0 ? (totalEjecutado / totalPresupuestado * 100) : 0;
-        document.getElementById('porcentajeEjecucion').textContent = porcentaje.toFixed(1) + '%';
+        if (elemPorcentaje) elemPorcentaje.textContent = porcentaje.toFixed(1) + '%';
         
         // Cambiar color según el porcentaje
-        const cardPorcentaje = document.getElementById('porcentajeEjecucion').closest('.card');
-        cardPorcentaje.className = 'card text-white ' + 
-            (porcentaje <= 80 ? 'bg-success' : 
-             porcentaje <= 100 ? 'bg-warning' : 'bg-danger');
+        const cardPorcentaje = elemPorcentaje ? elemPorcentaje.closest('.card') : null;
+        if (cardPorcentaje) {
+            if (porcentaje <= 80) {
+                cardPorcentaje.className = 'card text-white bg-success';
+            } else if (porcentaje <= 100) {
+                cardPorcentaje.className = 'card text-white bg-warning';
+            } else {
+                cardPorcentaje.className = 'card text-white bg-danger';
+            }
+        }
     }
 
     // Función para mostrar el gráfico
     function mostrarGrafico(datos) {
-        const ctx = document.getElementById('graficoComparativo').getContext('2d');
+        const ctx = document.getElementById('graficoComparativo');
+        if (!ctx) {
+            console.error('Canvas no encontrado');
+            return;
+        }
+
+        const context = ctx.getContext('2d');
         
         // Destruir gráfico anterior si existe
         if (graficoChart) {
             graficoChart.destroy();
         }
 
-        const labels = datos.map(d => d.tipoGasto);
-        const presupuestado = datos.map(d => d.presupuestado);
-        const ejecutado = datos.map(d => d.ejecutado);
+        const labels = datos.map(function(d) { return d.tipoGasto; });
+        const presupuestado = datos.map(function(d) { return d.presupuestado; });
+        const ejecutado = datos.map(function(d) { return d.ejecutado; });
 
-        graficoChart = new Chart(ctx, {
+        graficoChart = new Chart(context, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -165,7 +220,8 @@
                         backgroundColor: 'rgba(54, 162, 235, 0.8)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 2,
-                        borderRadius: 5
+                        borderRadius: 5,
+                        borderSkipped: false
                     },
                     {
                         label: 'Ejecutado',
@@ -173,7 +229,8 @@
                         backgroundColor: 'rgba(255, 206, 86, 0.8)',
                         borderColor: 'rgba(255, 206, 86, 1)',
                         borderWidth: 2,
-                        borderRadius: 5
+                        borderRadius: 5,
+                        borderSkipped: false
                     }
                 ]
             },
@@ -187,16 +244,28 @@
                         font: {
                             size: 16,
                             weight: 'bold'
-                        }
+                        },
+                        padding: 20
                     },
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + formatearMoneda(context.parsed.y);
+                                const label = context.dataset.label || '';
+                                const value = formatearMoneda(context.parsed.y);
+                                return label + ': ' + value;
                             }
                         }
                     }
@@ -207,19 +276,40 @@
                         ticks: {
                             callback: function(value) {
                                 return formatearMoneda(value);
+                            },
+                            font: {
+                                size: 11
                             }
                         },
                         title: {
                             display: true,
                             text: 'Monto (₡)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
                         }
                     },
                     x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                            font: {
+                                size: 11,
+                                weight: '600'
+                            }
+                        },
                         title: {
                             display: true,
                             text: 'Tipo de Gasto'
+                        },
+                        grid: {
+                            display: false
                         }
                     }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 },
                 animation: {
                     duration: 1000,
@@ -228,8 +318,14 @@
             }
         });
 
-        // Ajustar altura del canvas
-        document.getElementById('graficoComparativo').style.height = '400px';
+        // Mostrar el contenedor del gráfico y ocultar mensaje sin datos
+        const graficoContainer = document.getElementById('grafico-container');
+        const mensajeSinDatos = document.getElementById('mensaje-sin-datos');
+        
+        if (graficoContainer) graficoContainer.style.display = 'block';
+        if (mensajeSinDatos) mensajeSinDatos.style.display = 'none';
+        
+        ocultarEstado();
     }
 
     // Función para generar el gráfico
@@ -237,39 +333,133 @@
         const fechaInicio = document.getElementById('fechaInicio').value;
         const fechaFin = document.getElementById('fechaFin').value;
         
+        // Validaciones
         if (!fechaInicio || !fechaFin) {
-            alert('Por favor seleccione ambas fechas');
+            mostrarEstado('Por favor seleccione ambas fechas', 'warning');
+            return;
+        }
+
+        if (new Date(fechaInicio) > new Date(fechaFin)) {
+            mostrarEstado('La fecha de inicio no puede ser mayor que la fecha fin', 'danger');
             return;
         }
 
         // Mostrar loading
-        document.getElementById('mensaje-sin-datos').style.display = 'none';
-        document.getElementById('grafico-container').innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando gráfico...</div>';
+        mostrarEstado('Cargando datos del gráfico...', 'info');
+        
+        const graficoContainer = document.getElementById('grafico-container');
+        const mensajeSinDatos = document.getElementById('mensaje-sin-datos');
+        
+        if (graficoContainer) graficoContainer.style.display = 'none';
+        if (mensajeSinDatos) mensajeSinDatos.style.display = 'none';
 
-        // Obtener datos del servidor
-        fetch(`/Presupuesto/ObtenerDatosGrafico?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.datos && data.datos.length > 0) {
-                    // Restaurar canvas
-                    document.getElementById('grafico-container').innerHTML = '<canvas id="graficoComparativo" width="400" height="200"></canvas>';
-                    mostrarGrafico(data.datos);
-                    actualizarTotales(data.totalPresupuestado, data.totalEjecutado);
+        // Construir URL con parámetros
+        const url = '/Presupuesto/ObtenerDatosGrafico?fechaInicio=' + encodeURIComponent(fechaInicio) + '&fechaFin=' + encodeURIComponent(fechaFin);
+
+        // Obtener datos del servidor usando XMLHttpRequest para compatibilidad
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        // Verificar si existe el token CSRF
+        const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (csrfToken) {
+            xhr.setRequestHeader('RequestVerificationToken', csrfToken.value);
+        }
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        console.log('Datos recibidos:', data); // Para debug
+
+                        if (data.success) {
+                            if (data.datos && data.datos.length > 0) {
+                                mostrarGrafico(data.datos);
+                                actualizarTotales(data.totalPresupuestado || 0, data.totalEjecutado || 0);
+                                mostrarEstado('Gráfico generado exitosamente', 'success');
+                            } else {
+                                // No hay datos
+                                const graficoContainer = document.getElementById('grafico-container');
+                                const mensajeSinDatos = document.getElementById('mensaje-sin-datos');
+                                
+                                if (graficoContainer) graficoContainer.style.display = 'none';
+                                if (mensajeSinDatos) mensajeSinDatos.style.display = 'block';
+                                
+                                actualizarTotales(0, 0);
+                                mostrarEstado(data.mensaje || 'No se encontraron datos para el período seleccionado', 'warning');
+                            }
+                        } else {
+                            throw new Error(data.message || 'Error desconocido al obtener datos');
+                        }
+                    } catch (error) {
+                        console.error('Error al procesar respuesta:', error);
+                        
+                        const graficoContainer = document.getElementById('grafico-container');
+                        const mensajeSinDatos = document.getElementById('mensaje-sin-datos');
+                        
+                        if (graficoContainer) graficoContainer.style.display = 'none';
+                        if (mensajeSinDatos) mensajeSinDatos.style.display = 'block';
+                        
+                        actualizarTotales(0, 0);
+                        mostrarEstado('Error al procesar los datos: ' + error.message, 'danger');
+                    }
                 } else {
-                    document.getElementById('grafico-container').innerHTML = '';
-                    document.getElementById('mensaje-sin-datos').style.display = 'block';
+                    console.error('Error del servidor:', xhr.status);
+                    
+                    const graficoContainer = document.getElementById('grafico-container');
+                    const mensajeSinDatos = document.getElementById('mensaje-sin-datos');
+                    
+                    if (graficoContainer) graficoContainer.style.display = 'none';
+                    if (mensajeSinDatos) mensajeSinDatos.style.display = 'block';
+                    
                     actualizarTotales(0, 0);
+                    mostrarEstado('Error del servidor: ' + xhr.status, 'danger');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('grafico-container').innerHTML = '<div class="alert alert-danger">Error al cargar los datos del gráfico</div>';
-                actualizarTotales(0, 0);
-            });
+            }
+        };
+
+        xhr.onerror = function() {
+            console.error('Error de conexión');
+            
+            const graficoContainer = document.getElementById('grafico-container');
+            const mensajeSinDatos = document.getElementById('mensaje-sin-datos');
+            
+            if (graficoContainer) graficoContainer.style.display = 'none';
+            if (mensajeSinDatos) mensajeSinDatos.style.display = 'block';
+            
+            actualizarTotales(0, 0);
+            mostrarEstado('Error de conexión con el servidor', 'danger');
+        };
+
+        xhr.send();
     }
 
-    // Cargar datos automáticamente al cargar la página
+    // Validación de fechas en tiempo real
     document.addEventListener('DOMContentLoaded', function() {
+        const fechaInicio = document.getElementById('fechaInicio');
+        const fechaFin = document.getElementById('fechaFin');
+        
+        if (fechaInicio) {
+            fechaInicio.addEventListener('change', function() {
+                const fechaFinValue = fechaFin ? fechaFin.value : '';
+                if (fechaFinValue && new Date(this.value) > new Date(fechaFinValue)) {
+                    mostrarEstado('La fecha de inicio no puede ser mayor que la fecha fin', 'warning');
+                }
+            });
+        }
+        
+        if (fechaFin) {
+            fechaFin.addEventListener('change', function() {
+                const fechaInicioValue = fechaInicio ? fechaInicio.value : '';
+                if (fechaInicioValue && new Date(fechaInicioValue) > new Date(this.value)) {
+                    mostrarEstado('La fecha fin no puede ser menor que la fecha de inicio', 'warning');
+                }
+            });
+        }
+
+        // Cargar datos automáticamente al cargar la página
         generarGrafico();
     });
 </script>
