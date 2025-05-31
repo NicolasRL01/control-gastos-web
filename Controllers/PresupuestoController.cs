@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ControlGastosWeb.Models;
 
 namespace ControlGastosWeb.Controllers
@@ -21,12 +20,6 @@ namespace ControlGastosWeb.Controllers
         public IActionResult Create()
         {
             return View();
-        }
-
-        [HttpPost]
-        public IActionResult Create(Presupuesto modelo)
-        {
-            return RedirectToAction("Index");
         }
 
         public IActionResult Reporte()
