@@ -1,0 +1,142 @@
+﻿@model ControlGastosWeb.Models.Deposito
+
+@{
+    ViewData["Title"] = "Detalles del Depósito";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-eye"></i> Detalles del Depósito #@Model.Id
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-5">
+                                    <i class="fas fa-calendar text-primary"></i> Fecha:
+                                </dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-primary fs-6">
+                                        @Model.Fecha.ToString("dd/MM/yyyy")
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5">
+                                    <i class="fas fa-wallet text-success"></i> Fondo:
+                                </dt>
+                                <dd class="col-sm-7">
+                                    <strong>@Model.FondoMonetario?.Nombre</strong>
+                                </dd>
+
+                                <dt class="col-sm-5">
+                                    <i class="fas fa-dollar-sign text-success"></i> Monto:
+                                </dt>
+                                <dd class="col-sm-7">
+                                    <span class="fs-4 fw-bold text-success">
+                                        @Model.Monto.ToString("C", new System.Globalization.CultureInfo("es-CO"))
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-5">
+                                    <i class="fas fa-clock text-muted"></i> Creado:
+                                </dt>
+                                <dd class="col-sm-7">
+                                    @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                                </dd>
+
+                                <dt class="col-sm-5">
+                                    <i class="fas fa-check-circle text-success"></i> Estado:
+                                </dt>
+                                <dd class="col-sm-7">
+                                    @if (Model.Activo)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-5">
+                                    <i class="fas fa-hashtag text-muted"></i> ID:
+                                </dt>
+                                <dd class="col-sm-7">
+                                    #@Model.Id
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6><i class="fas fa-comment text-info"></i> Descripción:</h6>
+                            <div class="border rounded p-3 bg-light">
+                                @if (!string.IsNullOrEmpty(Model.Descripcion))
+                                {
+                                    <p class="mb-0">@Model.Descripcion</p>
+                                }
+                                else
+                                {
+                                    <p class="mb-0 text-muted fst-italic">
+                                        <i class="fas fa-info-circle"></i> Sin descripción registrada
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del fondo monetario -->
+                    @if (Model.FondoMonetario != null)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-info-circle"></i> Información del Fondo</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Nombre:</strong> @Model.FondoMonetario.Nombre<br>
+                                            @* Removido Descripcion porque no está en el modelo FondoMonetario según el error *@
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Saldo Actual:</strong>
+                                            <span class="text-success fw-bold">
+                                                @Model.FondoMonetario.SaldoActual.ToString("C", new System.Globalization.CultureInfo("es-CO"))
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a la lista
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

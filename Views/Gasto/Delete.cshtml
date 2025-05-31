@@ -1,0 +1,45 @@
+﻿@model ControlGastosWeb.Models.Gasto
+@{
+    ViewData["Title"] = "Eliminar Gasto";
+}
+<div class="row">
+    <div class="col-md-8">
+        <h2>@ViewData["Title"]</h2>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>¿Está seguro que desea eliminar este gasto?</strong>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Descripcion)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Monto)</dt>
+                    <dd class="col-sm-9">
+                        <strong class="text-danger">
+                            @Model.Monto.ToString("C")
+                        </strong>
+                    </dd>
+                    <dt class="col-sm-3">Fecha del Gasto</dt>
+                    <dd class="col-sm-9">@Model.FechaGasto.ToString("dd/MM/yyyy")</dd>
+                    <dt class="col-sm-3">Categoría</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.TipoGasto.Nombre)</dd>
+                    <dt class="col-sm-3">Fondo</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.FondoMonetario.Nombre)</dd>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <form asp-action="Delete" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Confirmar Eliminación
+                    </button>
+                </form>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

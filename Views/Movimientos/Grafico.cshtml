@@ -1,0 +1,348 @@
+﻿@{
+    ViewData["Title"] = "Gráfico Comparativo - Presupuesto vs Ejecución";
+    Layout = "_Layout";
+}
+@model List<ControlGastosWeb.Controllers.DatoGraficoViewModel>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>Gráfico Comparativo - Presupuesto vs Ejecución</h2>
+
+            <!-- FILTROS -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Seleccionar Período</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="/Movimientos/Grafico">
+                        <div class="row">
+                            <!-- Fecha Inicio -->
+                            <div class="col-md-4 mb-3">
+                                <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                                <input type="date"
+                                       class="form-control"
+                                       id="fechaInicio"
+                                       name="fechaInicio"
+                                       value="@ViewBag.FechaInicio"
+                                       required />
+                            </div>
+
+                            <!-- Fecha Fin -->
+                            <div class="col-md-4 mb-3">
+                                <label for="fechaFin" class="form-label">Fecha Fin</label>
+                                <input type="date"
+                                       class="form-control"
+                                       id="fechaFin"
+                                       name="fechaFin"
+                                       value="@ViewBag.FechaFin"
+                                       required />
+                            </div>
+
+                            <!-- Botón -->
+                            <div class="col-md-4 mb-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary">Generar Gráfico</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RESUMEN GENERAL -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Presupuestado</h5>
+                            <h3 class="mb-0">$@(((decimal)(ViewBag.TotalPresupuestado ?? 0)).ToString("N2"))</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Ejecutado</h5>
+                            <h3 class="mb-0">$@(((decimal)(ViewBag.TotalEjecutado ?? 0)).ToString("N2"))</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">% Ejecución General</h5>
+                            <h3 class="mb-0">@(((decimal)(ViewBag.PorcentajeEjecucionGeneral ?? 0)).ToString("F1"))%</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <!-- GRÁFICO DE BARRAS CON CHART.JS -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Gráfico Comparativo por Tipo de Gasto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div style="position: relative; height: 400px;">
+                            <canvas id="graficoComparativo"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA DE DATOS -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Datos Detallados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Tipo de Gasto</th>
+                                        <th class="text-end">Presupuestado</th>
+                                        <th class="text-end">Ejecutado</th>
+                                        <th class="text-end">Diferencia</th>
+                                        <th class="text-center">% Ejecución</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var dato in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>@dato.TipoGasto</strong></td>
+                                            <td class="text-end">$@dato.MontoPresupuestado.ToString("N2")</td>
+                                            <td class="text-end">$@dato.MontoEjecutado.ToString("N2")</td>
+                                            <td class="text-end @(dato.Diferencia > 0 ? "text-danger" : "text-success")">
+                                                @(dato.Diferencia >= 0 ? "+" : "")$@dato.Diferencia.ToString("N2")
+                                            </td>
+                                            <td class="text-center">@dato.PorcentajeEjecucion.ToString("F1")%</td>
+                                            <td class="text-center">
+                                                @if (dato.EstaSobrepasado)
+                                                {
+                                                    <span class="badge bg-danger">Sobrepasado</span>
+                                                }
+                                                else if (dato.PorcentajeEjecucion >= 80)
+                                                {
+                                                    <span class="badge bg-warning text-dark">Cerca del límite</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">Dentro del presupuesto</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- MENSAJE CUANDO NO HAY DATOS -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Gráfico Comparativo por Tipo de Gasto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="graficoBarras" style="min-height: 400px;">
+                            <div class="text-center">
+                                <p class="text-muted">No se encontraron datos para el período seleccionado</p>
+                                <small class="text-muted">Verifique que existan presupuestos y gastos para las fechas indicadas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA VACÍA -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Datos Detallados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Tipo de Gasto</th>
+                                        <th>Presupuestado</th>
+                                        <th>Ejecutado</th>
+                                        <th>Diferencia</th>
+                                        <th>% Ejecución</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <div class="alert alert-info mb-0">
+                                                No se encontraron datos para mostrar. Seleccione un período válido.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- BOTÓN VOLVER -->
+            <div class="mb-3">
+                <a href="/Movimientos" class="btn btn-secondary">Volver a Consulta de Movimientos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<script>
+    // Validar fechas
+    document.addEventListener('DOMContentLoaded', function() {
+        var fechaInicio = document.getElementById('fechaInicio');
+        var fechaFin = document.getElementById('fechaFin');
+
+        if (fechaFin) {
+            fechaFin.addEventListener('change', function() {
+                var inicio = fechaInicio.value;
+                var fin = this.value;
+
+                if (inicio && fin && fin < inicio) {
+                    alert('La fecha fin debe ser mayor o igual a la fecha inicio');
+                    this.value = inicio;
+                }
+            });
+        }
+
+        if (fechaInicio) {
+            fechaInicio.addEventListener('change', function() {
+                var inicio = this.value;
+                var fin = fechaFin.value;
+
+                if (inicio && fin && fin < inicio) {
+                    fechaFin.value = inicio;
+                }
+            });
+        }
+
+        // GENERAR GRÁFICO CON CHART.JS
+        @if (Model != null && Model.Any())
+        {
+            <text>
+            // Datos del gráfico desde el modelo
+            const labels = [@Html.Raw(string.Join(",", Model.Select(d => $"'{d.TipoGasto}'")))];
+            const datosPresupuestado = [@Html.Raw(string.Join(",", Model.Select(d => d.MontoPresupuestado.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))))];
+            const datosEjecutado = [@Html.Raw(string.Join(",", Model.Select(d => d.MontoEjecutado.ToString("F2", System.Globalization.CultureInfo.InvariantCulture))))];
+
+            console.log('Labels:', labels);
+            console.log('Presupuestado:', datosPresupuestado);
+            console.log('Ejecutado:', datosEjecutado);
+
+            const ctx = document.getElementById('graficoComparativo').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Presupuestado',
+                            data: datosPresupuestado,
+                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Ejecutado',
+                            data: datosEjecutado,
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Comparativo: Presupuesto vs Ejecución por Tipo de Gasto',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + parseFloat(context.parsed.y).toLocaleString('es-CO', {minimumFractionDigits: 2});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + parseFloat(value).toLocaleString('es-CO');
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Monto ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tipos de Gasto'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false
+                    }
+                }
+            });
+            </text>
+        }
+    });
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .table th {
+        background-color: #212529;
+        color: white;
+        border-color: #32383e;
+    }
+
+    .badge {
+        font-size: 0.8em;
+    }
+
+    #graficoBarras {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 2rem;
+    }
+</style>

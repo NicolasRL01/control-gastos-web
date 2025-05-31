@@ -1,0 +1,63 @@
+﻿@model ControlGastosWeb.Models.FondoMonetario
+
+@{
+    ViewData["Title"] = "Detalles del Fondo Monetario";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>@ViewData["Title"]</h2>
+
+        <div class="card">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Nombre)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Nombre)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Tipo)</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge @(Model.Tipo == "Efectivo" ? "bg-success" : Model.Tipo == "Banco" ? "bg-primary" : "bg-info")">
+                            @Html.DisplayFor(model => model.Tipo)
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-3">Saldo Inicial</dt>
+                    <dd class="col-sm-9"><strong>@Model.SaldoInicial.ToString("C")</strong></dd>
+
+                    <dt class="col-sm-3">Saldo Actual</dt>
+                    <dd class="col-sm-9">
+                        <strong class="@(Model.SaldoActual >= 0 ? "text-success" : "text-danger")">
+                            @Model.SaldoActual.ToString("C")
+                        </strong>
+                    </dd>
+
+                    <dt class="col-sm-3">Diferencia</dt>
+                    <dd class="col-sm-9">
+                        <strong class="@((Model.SaldoActual - Model.SaldoInicial) >= 0 ? "text-success" : "text-danger")">
+                            @((Model.SaldoActual - Model.SaldoInicial).ToString("C"))
+                        </strong>
+                    </dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FechaCreacion)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaCreacion)</dd>
+
+                    <dt class="col-sm-3">Estado</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge @(Model.Activo ? "bg-success" : "bg-danger")">
+                            @(Model.Activo ? "Activo" : "Inactivo")
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+
+            <div class="card-footer">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Regresar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

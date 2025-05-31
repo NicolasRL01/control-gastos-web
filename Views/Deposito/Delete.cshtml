@@ -1,0 +1,116 @@
+﻿@model ControlGastosWeb.Models.Deposito
+
+@{
+    ViewData["Title"] = "Eliminar Depósito";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-warning"></i> ¿Está seguro de eliminar este depósito?</h5>
+                        <p class="mb-0">
+                            Esta acción <strong>revertirá el saldo del fondo monetario</strong> y
+                            marcará el depósito como inactivo. Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+
+                    <!-- Información del depósito a eliminar -->
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">Detalles del depósito a eliminar:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">ID:</dt>
+                                        <dd class="col-sm-7">#@Model.Id</dd>
+
+                                        <dt class="col-sm-5">Fecha:</dt>
+                                        <dd class="col-sm-7">
+                                            <span class="badge bg-primary">
+                                                @Model.Fecha.ToString("dd/MM/yyyy")
+                                            </span>
+                                        </dd>
+
+                                        <dt class="col-sm-5">Fondo:</dt>
+                                        <dd class="col-sm-7">
+                                            <strong>@Model.FondoMonetario?.Nombre</strong>
+                                        </dd>
+                                    </dl>
+                                </div>
+                                <div class="col-md-6">
+                                    <dl class="row">
+                                        <dt class="col-sm-5">Monto:</dt>
+                                        <dd class="col-sm-7">
+                                            <span class="fs-5 fw-bold text-danger">
+                                                @Model.Monto.ToString("C", new System.Globalization.CultureInfo("es-CO"))
+                                            </span>
+                                        </dd>
+
+                                        <dt class="col-sm-5">Creado:</dt>
+                                        <dd class="col-sm-7">
+                                            @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Descripcion))
+                            {
+                                <div class="mt-3">
+                                    <strong>Descripción:</strong>
+                                    <p class="text-muted">@Model.Descripcion</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Impacto en el fondo -->
+                    @if (Model.FondoMonetario != null)
+                    {
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="fas fa-info-circle"></i> Impacto en el fondo monetario:</h6>
+                            <p class="mb-0">
+                                <strong>Saldo actual del fondo "@Model.FondoMonetario.Nombre":</strong>
+                                @Model.FondoMonetario.SaldoActual.ToString("C", new System.Globalization.CultureInfo("es-CO"))
+                            </p>
+                            <p class="mb-0">
+                                <strong>Saldo después de eliminar:</strong>
+                                <span class="text-warning fw-bold">
+                                    @((Model.FondoMonetario.SaldoActual - Model.Monto).ToString("C", new System.Globalization.CultureInfo("es-CO")))
+                                </span>
+                                <small class="text-muted">(se restará @Model.Monto.ToString("C", new System.Globalization.CultureInfo("es-CO")))</small>
+                            </p>
+                        </div>
+                    }
+
+                    <!-- Formulario de confirmación -->
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <div>
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info me-2">
+                                    <i class="fas fa-eye"></i> Ver detalles
+                                </a>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Confirmar eliminación
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

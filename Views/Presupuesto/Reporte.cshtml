@@ -1,0 +1,152 @@
+﻿@model IEnumerable<ControlGastosWeb.Models.Presupuesto>
+
+@{
+    ViewData["Title"] = "Reporte de Presupuestos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-bar"></i> Reporte de Presupuestos</h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver a Lista
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filtros de Búsqueda</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-action="Reporte">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">Año</label>
+                    <select name="ano" class="form-select">
+                        <option value="">-- Todos los años --</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Mes</label>
+                    <select name="mes" class="form-select">
+                        <option value="">-- Todos los meses --</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <!-- Resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Count()</h4>
+                    <p class="mb-0">Total Presupuestos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Sum(p => p.MontoPresupuestado).ToString("C")</h4>
+                    <p class="mb-0">Total Presupuestado</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Sum(p => p.MontoEjecutado).ToString("C")</h4>
+                    <p class="mb-0">Total Ejecutado</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Sum(p => p.MontoRestante).ToString("C")</h4>
+                    <p class="mb-0">Total Restante</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Detalle de Presupuestos</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Gasto</th>
+                            <th>Mes</th>
+                            <th>Año</th>
+                            <th class="text-end">Presupuestado</th>
+                            <th class="text-end">Ejecutado</th>
+                            <th class="text-end">Restante</th>
+                            <th class="text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.TipoGasto.Nombre</td>
+                                <td>@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(item.Mes)</td>
+                                <td>@item.Ano</td>
+                                <td class="text-end">@item.MontoPresupuestado.ToString("C")</td>
+                                <td class="text-end">@item.MontoEjecutado.ToString("C")</td>
+                                <td class="text-end">@item.MontoRestante.ToString("C")</td>
+                                <td class="text-center">
+                                    @if (item.EstaSobrepasado)
+                                    {
+                                        <span class="badge bg-danger">Sobrepasado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Normal</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <h4>No hay datos para mostrar</h4>
+        <p>No se encontraron presupuestos con los filtros seleccionados.</p>
+        <a asp-action="Create" class="btn btn-success">Crear Presupuesto</a>
+    </div>
+}
