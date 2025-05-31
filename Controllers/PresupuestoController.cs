@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -31,12 +31,15 @@ namespace ControlGastosWeb.Controllers
 
                 if (presupuesto != null)
                 {
-                    var totalGastado = await _context.Gastos
+                    // FIX SQLite: Usar ToListAsync y luego Sum en C#
+                    var gastosDelPeriodo = await _context.Gastos
                         .Where(g => g.TipoGastoId == tipoGastoId
                                    && g.FechaGasto.Month == mes
                                    && g.FechaGasto.Year == ano
                                    && g.Activo)
-                        .SumAsync(g => g.Monto);
+                        .ToListAsync();
+
+                    var totalGastado = gastosDelPeriodo.Sum(g => g.Monto);
 
                     System.Diagnostics.Debug.WriteLine($"Total gastado calculado: {totalGastado}");
                     System.Diagnostics.Debug.WriteLine($"Monto ejecutado anterior: {presupuesto.MontoEjecutado}");
@@ -73,12 +76,15 @@ namespace ControlGastosWeb.Controllers
 
                 foreach (var presupuesto in presupuestosActivos)
                 {
-                    var totalGastado = await _context.Gastos
+                    // FIX SQLite: Usar ToListAsync y luego Sum en C#
+                    var gastosDelPresupuesto = await _context.Gastos
                         .Where(g => g.TipoGastoId == presupuesto.TipoGastoId
                                    && g.FechaGasto.Month == presupuesto.Mes
                                    && g.FechaGasto.Year == presupuesto.Ano
                                    && g.Activo)
-                        .SumAsync(g => g.Monto);
+                        .ToListAsync();
+
+                    var totalGastado = gastosDelPresupuesto.Sum(g => g.Monto);
 
                     var montoAnterior = presupuesto.MontoEjecutado;
                     presupuesto.MontoEjecutado = totalGastado;
@@ -372,13 +378,15 @@ namespace ControlGastosWeb.Controllers
                     }
                     else
                     {
-                        // Crear presupuesto con monto ejecutado inicial
-                        var totalGastadoExistente = await _context.Gastos
+                        // FIX SQLite: Crear presupuesto con monto ejecutado inicial
+                        var gastosExistentes = await _context.Gastos
                             .Where(g => g.TipoGastoId == TipoGastoId
                                        && g.FechaGasto.Month == Mes
                                        && g.FechaGasto.Year == Ano
                                        && g.Activo)
-                            .SumAsync(g => g.Monto);
+                            .ToListAsync();
+
+                        var totalGastadoExistente = gastosExistentes.Sum(g => g.Monto);
 
                         var presupuesto = new Presupuesto
                         {
@@ -515,14 +523,15 @@ namespace ControlGastosWeb.Controllers
                     presupuesto.FechaCreacion = FechaCreacion;
                     presupuesto.Activo = true;
 
-                    // Calcular el nuevo MontoEjecutado basado en gastos reales del NUEVO periodo
-                    var totalGastadoNuevoPeriodo = await _context.Gastos
+                    // FIX SQLite: Calcular el nuevo MontoEjecutado basado en gastos reales del NUEVO periodo
+                    var gastosNuevoPeriodo = await _context.Gastos
                         .Where(g => g.TipoGastoId == TipoGastoId
                                    && g.FechaGasto.Month == Mes
                                    && g.FechaGasto.Year == Ano
                                    && g.Activo)
-                        .SumAsync(g => g.Monto);
+                        .ToListAsync();
 
+                    var totalGastadoNuevoPeriodo = gastosNuevoPeriodo.Sum(g => g.Monto);
                     presupuesto.MontoEjecutado = totalGastadoNuevoPeriodo;
 
                     System.Diagnostics.Debug.WriteLine($"MontoEjecutado calculado para nuevo periodo: {totalGastadoNuevoPeriodo}");
@@ -545,12 +554,15 @@ namespace ControlGastosWeb.Controllers
 
                         if (presupuestoAnterior != null)
                         {
-                            var totalGastadoPeriodoAnterior = await _context.Gastos
+                            // FIX SQLite: Recalcular periodo anterior
+                            var gastosPeriodoAnterior = await _context.Gastos
                                 .Where(g => g.TipoGastoId == tipoGastoAnterior
                                            && g.FechaGasto.Month == mesAnterior
                                            && g.FechaGasto.Year == anoAnterior
                                            && g.Activo)
-                                .SumAsync(g => g.Monto);
+                                .ToListAsync();
+
+                            var totalGastadoPeriodoAnterior = gastosPeriodoAnterior.Sum(g => g.Monto);
 
                             presupuestoAnterior.MontoEjecutado = totalGastadoPeriodoAnterior;
                             _context.Update(presupuestoAnterior);
