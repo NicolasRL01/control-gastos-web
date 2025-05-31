@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ControlGastosWeb.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlGastosWeb.Controllers;
 
+[Authorize] // Requiere autenticación para todo el controller
 public class PresupuestoController : Controller
 {
     private readonly ApplicationDbContext _context;
