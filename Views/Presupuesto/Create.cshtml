@@ -11,7 +11,6 @@
                 <h4 class="mb-0">📊 Crear Nuevo Presupuesto</h4>
             </div>
             <div class="card-body">
-                <!-- Mensajes de error/éxito -->
                 @if (TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -43,11 +42,14 @@
                                 </label>
                                 <select name="TipoGastoId" id="TipoGastoId" class="form-select" required>
                                     <option value="">-- Seleccionar Tipo de Gasto --</option>
-                                    @if (ViewData["TipoGastoId"] is SelectList tiposGasto)
-                                    {
-                                        @foreach (SelectListItem item in tiposGasto)
+                                    @{
+                                        var tiposGasto = ViewData["TipoGastoId"] as SelectList;
+                                        if (tiposGasto != null)
                                         {
-                                            <option value="@item.Value">@item.Text</option>
+                                            foreach (SelectListItem item in tiposGasto)
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
                                         }
                                     }
                                 </select>
@@ -61,18 +63,18 @@
                                 </label>
                                 <select name="Mes" id="Mes" class="form-select" required>
                                     <option value="">-- Mes --</option>
-                                    <option value="1" @(DateTime.Now.Month == 1 ? "selected" : "")>Enero</option>
-                                    <option value="2" @(DateTime.Now.Month == 2 ? "selected" : "")>Febrero</option>
-                                    <option value="3" @(DateTime.Now.Month == 3 ? "selected" : "")>Marzo</option>
-                                    <option value="4" @(DateTime.Now.Month == 4 ? "selected" : "")>Abril</option>
-                                    <option value="5" @(DateTime.Now.Month == 5 ? "selected" : "")>Mayo</option>
-                                    <option value="6" @(DateTime.Now.Month == 6 ? "selected" : "")>Junio</option>
-                                    <option value="7" @(DateTime.Now.Month == 7 ? "selected" : "")>Julio</option>
-                                    <option value="8" @(DateTime.Now.Month == 8 ? "selected" : "")>Agosto</option>
-                                    <option value="9" @(DateTime.Now.Month == 9 ? "selected" : "")>Septiembre</option>
-                                    <option value="10" @(DateTime.Now.Month == 10 ? "selected" : "")>Octubre</option>
-                                    <option value="11" @(DateTime.Now.Month == 11 ? "selected" : "")>Noviembre</option>
-                                    <option value="12" @(DateTime.Now.Month == 12 ? "selected" : "")>Diciembre</option>
+                                    <option value="1">Enero</option>
+                                    <option value="2">Febrero</option>
+                                    <option value="3">Marzo</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Mayo</option>
+                                    <option value="6">Junio</option>
+                                    <option value="7">Julio</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
                                 </select>
                                 <span asp-validation-for="Mes" class="text-danger"></span>
                             </div>
@@ -83,7 +85,7 @@
                                     <i class="fas fa-calendar-alt"></i> Año
                                 </label>
                                 <input name="Ano" id="Ano" class="form-control" type="number"
-                                       min="2020" max="2030" value="@DateTime.Now.Year" required />
+                                       min="2020" max="2030" value="2025" required />
                                 <span asp-validation-for="Ano" class="text-danger"></span>
                             </div>
                         </div>
@@ -130,43 +132,10 @@
     }
     
     <script>
-        // Script para debugging y validación
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Vista Create cargada');
             
-            // Verificar si hay tipos de gasto
-            const tipoGastoSelect = document.getElementById('TipoGastoId');
-            console.log('Opciones de Tipo de Gasto:', tipoGastoSelect.options.length);
-            
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                console.log('=== DEBUGGING FORMULARIO ===');
-                console.log('TipoGastoId:', document.getElementById('TipoGastoId').value);
-                console.log('Mes:', document.getElementById('Mes').value);
-                console.log('Ano:', document.getElementById('Ano').value);
-                console.log('MontoPresupuestado:', document.getElementById('MontoPresupuestado').value);
-
-                // Validar que todos los campos estén llenos
-                const tipoGasto = document.getElementById('TipoGastoId').value;
-                const mes = document.getElementById('Mes').value;
-                const ano = document.getElementById('Ano').value;
-                const monto = document.getElementById('MontoPresupuestado').value;
-
-                if (!tipoGasto || !mes || !ano || !monto) {
-                    alert('Por favor complete todos los campos obligatorios');
-                    e.preventDefault();
-                    return false;
-                }
-
-                if (parseFloat(monto) <= 0) {
-                    alert('El monto debe ser mayor que cero');
-                    e.preventDefault();
-                    return false;
-                }
-
-                console.log('Formulario válido, enviando...');
-                return true;
-            });
-        });
-    </script>
-}
+            // Auto-seleccionar mes actual
+            const mesSelect = document.getElementById('Mes');
+            const mesActual = new Date().getMonth() + 1;
+            if
