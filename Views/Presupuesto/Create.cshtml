@@ -2,29 +2,31 @@
 
 <h2>Crear Presupuesto</h2>
 
-<form asp-action="Create">
-    <div>
-        <label asp-for="TipoGastoId">Tipo de Gasto</label>
-        <select asp-for="TipoGastoId" asp-items="ViewBag.TipoGastoId">
-            <option value="">Seleccionar</option>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="TipoGastoId">Tipo de Gasto:</label>
+        <select asp-for="TipoGastoId" class="form-control">
+            <option value="1">Alimentación</option>
+            <option value="2">Transporte</option>
+            <option value="3">Entretenimiento</option>
         </select>
     </div>
-    
-    <div>
-        <label asp-for="Mes">Mes</label>
-        <input asp-for="Mes" type="number" min="1" max="12" />
+
+    <div class="form-group">
+        <label asp-for="Mes">Mes:</label>
+        <input asp-for="Mes" type="number" min="1" max="12" class="form-control" />
     </div>
-    
-    <div>
-        <label asp-for="Ano">Año</label>
-        <input asp-for="Ano" type="number" value="2025" />
+
+    <div class="form-group">
+        <label asp-for="Ano">Año:</label>
+        <input asp-for="Ano" type="number" value="2025" class="form-control" />
     </div>
-    
-    <div>
-        <label asp-for="MontoPresupuestado">Monto</label>
-        <input asp-for="MontoPresupuestado" type="number" step="0.01" />
+
+    <div class="form-group">
+        <label asp-for="MontoPresupuestado">Monto:</label>
+        <input asp-for="MontoPresupuestado" type="number" step="0.01" class="form-control" />
     </div>
-    
-    <button type="submit">Crear</button>
-    <a asp-action="Index">Cancelar</a>
+
+    <button type="submit" class="btn btn-primary">Crear</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
