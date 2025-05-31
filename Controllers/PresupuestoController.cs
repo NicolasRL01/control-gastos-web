@@ -29,17 +29,12 @@ namespace ControlGastosWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Presupuesto presupuesto)
         {
-            if (ModelState.IsValid)
-            {
-                presupuesto.FechaCreacion = DateTime.Now;
-                presupuesto.Activo = true;
-                presupuesto.MontoEjecutado = 0;
-                _context.Add(presupuesto);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            ViewData["TipoGastoId"] = new SelectList(await _context.TiposGasto.ToListAsync(), "Id", "Nombre");
-            return View(presupuesto);
+            presupuesto.FechaCreacion = DateTime.Now;
+            presupuesto.Activo = true;
+            presupuesto.MontoEjecutado = 0;
+            _context.Add(presupuesto);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
 
         public IActionResult Reporte()
