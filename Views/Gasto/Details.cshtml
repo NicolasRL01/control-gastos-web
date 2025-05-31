@@ -1,0 +1,66 @@
+﻿@model ControlGastosWeb.Models.Gasto
+
+@{
+    ViewData["Title"] = "Detalles del Gasto";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2>@ViewData["Title"]</h2>
+
+        <div class="card">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Descripcion)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Monto)</dt>
+                    <dd class="col-sm-9">
+                        <strong class="text-danger h4">
+                            @Model.Monto.ToString("C")
+                        </strong>
+                    </dd>
+
+                    <dt class="col-sm-3">Fecha del Gasto</dt>
+                    <dd class="col-sm-9">@Model.FechaGasto.ToString("dddd, dd 'de' MMMM 'de' yyyy")</dd>
+
+                    <dt class="col-sm-3">Categoría</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-secondary fs-6">
+                            @Html.DisplayFor(model => model.TipoGasto.Nombre)
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-3">Fondo Utilizado</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info fs-6">
+                            @Html.DisplayFor(model => model.FondoMonetario.Nombre)
+                        </span>
+                        <small class="text-muted d-block">
+                            Tipo: @Html.DisplayFor(model => model.FondoMonetario.Tipo)
+                        </small>
+                    </dd>
+
+                    <dt class="col-sm-3">Fecha de Registro</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaCreacion)</dd>
+
+                    <dt class="col-sm-3">Estado</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge @(Model.Activo ? "bg-success" : "bg-danger")">
+                            @(Model.Activo ? "Activo" : "Inactivo")
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+
+            <div class="card-footer">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Regresar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
