@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,12 +7,16 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ControlGastosWeb.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ControlGastosWeb</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-wallet"></i> ControlGastosWeb
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,43 +24,61 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> Home
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TipoGasto" asp-action="Index">Tipos de Gasto</a>
+                            <a class="nav-link" asp-area="" asp-controller="TipoGasto" asp-action="Index">
+                                <i class="fas fa-tags"></i> Tipos de Gasto
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="FondoMonetario" asp-action="Index">Fondos</a>
+                            <a class="nav-link" asp-area="" asp-controller="FondoMonetario" asp-action="Index">
+                                <i class="fas fa-piggy-bank"></i> Fondos
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Gasto" asp-action="Index">Gastos</a>
+                            <a class="nav-link" asp-area="" asp-controller="Gasto" asp-action="Index">
+                                <i class="fas fa-receipt"></i> Gastos
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Presupuesto" asp-action="Index">Presupuestos</a>
+                            <a class="nav-link" asp-area="" asp-controller="Presupuesto" asp-action="Index">
+                                <i class="fas fa-chart-pie"></i> Presupuestos
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Deposito" asp-action="Index">Depósitos</a>
+                            <a class="nav-link" asp-area="" asp-controller="Deposito" asp-action="Index">
+                                <i class="fas fa-plus-circle"></i> Depósitos
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Movimientos" asp-action="Index">Consulta de Movimientos</a>
+                            <a class="nav-link" asp-area="" asp-controller="ConsultaMovimientos" asp-action="Index">
+                                <i class="fas fa-search"></i> Consulta de Movimientos
+                            </a>
                         </li>
                     </ul>
-                    <!-- PANEL DE LOGIN -->
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    
+    <!-- CONTENEDOR PRINCIPAL CON MARGEN INFERIOR PARA EL FOOTER -->
+    <div class="container-fluid" style="min-height: calc(100vh - 140px); padding-bottom: 80px;">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
-    <footer class="border-top footer text-muted">
-        <div class="container">
+
+    <!-- FOOTER ARREGLADO - NO BLOQUEA CONTENIDO -->
+    <footer class="border-top footer text-muted mt-auto" style="position: relative; bottom: 0; width: 100%; background-color: #f8f9fa; padding: 20px 0;">
+        <div class="container text-center">
             &copy; 2025 - ControlGastosWeb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
