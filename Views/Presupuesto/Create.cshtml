@@ -1,88 +1,92 @@
 @model ControlGastosWeb.Models.Presupuesto
 
 @{
-   ViewData["Title"] = "Crear Presupuesto";
+    ViewData["Title"] = "Crear Presupuesto";
 }
 
 <div class="container mt-4">
-   <div class="row justify-content-center">
-       <div class="col-md-8">
-           <div class="card">
-               <div class="card-header bg-primary text-white">
-                   <h4 class="mb-0">
-                       <i class="fas fa-plus-circle"></i> Crear Nuevo Presupuesto
-                   </h4>
-               </div>
-               <div class="card-body">
-                   <form asp-action="Create" method="post">
-                       <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Crear Nuevo Presupuesto</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
 
-                       <div class="row">
-                           <div class="col-md-12 mb-3">
-                               <label asp-for="TipoGastoId" class="form-label">Tipo de Gasto</label>
-                               <select asp-for="TipoGastoId" class="form-select" asp-items="ViewBag.TipoGastoId">
-                                   <option value="">-- Seleccionar Tipo de Gasto --</option>
-                               </select>
-                               <span asp-validation-for="TipoGastoId" class="text-danger"></span>
-                           </div>
-                       </div>
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
 
-                       <div class="row">
-                           <div class="col-md-6 mb-3">
-                               <label asp-for="Mes" class="form-label">Mes</label>
-                               <select asp-for="Mes" class="form-select">
-                                   <option value="">-- Seleccionar Mes --</option>
-                                   <option value="1">Enero</option>
-                                   <option value="2">Febrero</option>
-                                   <option value="3">Marzo</option>
-                                   <option value="4">Abril</option>
-                                   <option value="5">Mayo</option>
-                                   <option value="6">Junio</option>
-                                   <option value="7">Julio</option>
-                                   <option value="8">Agosto</option>
-                                   <option value="9">Septiembre</option>
-                                   <option value="10">Octubre</option>
-                                   <option value="11">Noviembre</option>
-                                   <option value="12">Diciembre</option>
-                               </select>
-                               <span asp-validation-for="Mes" class="text-danger"></span>
-                           </div>
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                           <div class="col-md-6 mb-3">
-                               <label asp-for="Ano" class="form-label">Año</label>
-                               <input asp-for="Ano" type="number" class="form-control" 
-                                      value="2025" min="2020" max="2030" />
-                               <span asp-validation-for="Ano" class="text-danger"></span>
-                           </div>
-                       </div>
+                        <div class="mb-3">
+                            <label asp-for="TipoGastoId" class="form-label">Tipo de Gasto</label>
+                            <select asp-for="TipoGastoId" class="form-select" asp-items="ViewBag.TipoGastoId">
+                                <option value="">Seleccionar Tipo de Gasto</option>
+                            </select>
+                            <span asp-validation-for="TipoGastoId" class="text-danger"></span>
+                        </div>
 
-                       <div class="row">
-                           <div class="col-md-12 mb-3">
-                               <label asp-for="MontoPresupuestado" class="form-label">Monto Presupuestado</label>
-                               <div class="input-group">
-                                   <span class="input-group-text">₡</span>
-                                   <input asp-for="MontoPresupuestado" type="number" class="form-control" 
-                                          step="0.01" min="0.01" placeholder="0.00" />
-                               </div>
-                               <span asp-validation-for="MontoPresupuestado" class="text-danger"></span>
-                           </div>
-                       </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Mes" class="form-label">Mes</label>
+                                <select asp-for="Mes" class="form-select">
+                                    <option value="">Seleccionar Mes</option>
+                                    <option value="1">Enero</option>
+                                    <option value="2">Febrero</option>
+                                    <option value="3">Marzo</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Mayo</option>
+                                    <option value="6">Junio</option>
+                                    <option value="7">Julio</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                                <span asp-validation-for="Mes" class="text-danger"></span>
+                            </div>
 
-                       <div class="d-flex justify-content-between">
-                           <a asp-action="Index" class="btn btn-secondary">
-                               <i class="fas fa-arrow-left"></i> Volver
-                           </a>
-                           <button type="submit" class="btn btn-success">
-                               <i class="fas fa-save"></i> Crear Presupuesto
-                           </button>
-                       </div>
-                   </form>
-               </div>
-           </div>
-       </div>
-   </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Ano" class="form-label">Año</label>
+                                <input asp-for="Ano" type="number" class="form-control" value="2025" min="2020" max="2030" />
+                                <span asp-validation-for="Ano" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MontoPresupuestado" class="form-label">Monto Presupuestado</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₡</span>
+                                <input asp-for="MontoPresupuestado" type="number" class="form-control" step="0.01" min="0.01" />
+                            </div>
+                            <span asp-validation-for="MontoPresupuestado" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+                            <button type="submit" class="btn btn-success">Crear Presupuesto</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-   @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
 }
