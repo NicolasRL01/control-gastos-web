@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ControlGastosWeb.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ControlGastosWeb.Controllers
 {
@@ -14,26 +13,19 @@ namespace ControlGastosWeb.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var presupuestos = await _context.Presupuestos.Include(p => p.TipoGasto).ToListAsync();
-            return View(presupuestos);
+            return View();
         }
 
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            ViewData["TipoGastoId"] = new SelectList(await _context.TiposGasto.ToListAsync(), "Id", "Nombre");
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Presupuesto presupuesto)
+        public IActionResult Create(Presupuesto modelo)
         {
-            presupuesto.FechaCreacion = DateTime.Now;
-            presupuesto.Activo = true;
-            presupuesto.MontoEjecutado = 0;
-            _context.Add(presupuesto);
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
