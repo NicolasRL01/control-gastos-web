@@ -138,4 +138,43 @@
             // Auto-seleccionar mes actual
             const mesSelect = document.getElementById('Mes');
             const mesActual = new Date().getMonth() + 1;
-            if
+            if (mesSelect) {
+                mesSelect.value = mesActual;
+            }
+            
+            // Verificar tipos de gasto cargados
+            const tipoGastoSelect = document.getElementById('TipoGastoId');
+            console.log('Opciones de Tipo de Gasto:', tipoGastoSelect.options.length);
+            
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                console.log('=== DEBUGGING FORMULARIO ===');
+                console.log('TipoGastoId:', document.getElementById('TipoGastoId').value);
+                console.log('Mes:', document.getElementById('Mes').value);
+                console.log('Ano:', document.getElementById('Ano').value);
+                console.log('MontoPresupuestado:', document.getElementById('MontoPresupuestado').value);
+
+                // Validar que todos los campos estén llenos
+                const tipoGasto = document.getElementById('TipoGastoId').value;
+                const mes = document.getElementById('Mes').value;
+                const ano = document.getElementById('Ano').value;
+                const monto = document.getElementById('MontoPresupuestado').value;
+
+                if (!tipoGasto || !mes || !ano || !monto) {
+                    alert('Por favor complete todos los campos obligatorios');
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (parseFloat(monto) <= 0) {
+                    alert('El monto debe ser mayor que cero');
+                    e.preventDefault();
+                    return false;
+                }
+
+                console.log('Formulario válido, enviando...');
+                return true;
+            });
+        });
+    </script>
+}
