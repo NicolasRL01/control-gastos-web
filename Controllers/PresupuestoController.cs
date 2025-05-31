@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ControlGastosWeb.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ControlGastosWeb.Controllers
 {
@@ -15,28 +16,61 @@ namespace ControlGastosWeb.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var lista = await _context.Presupuestos.ToListAsync();
-            return View(lista);
+            var presupuestos = await _context.Presupuestos
+                .Include(p => p.TipoGasto)
+                .OrderByDescending(p => p.Ano)
+                .ThenByDescending(p => p.Mes)
+                .ToListAsync();
+            return View(presupuestos);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ViewData["TipoGastoId"] = new SelectList(await _context.TiposGasto.ToListAsync(), "Id", "Nombre");
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Presupuesto modelo)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Presupuesto presupuesto)
         {
-            modelo.FechaCreacion = DateTime.Now;
-            modelo.Activo = true;
-            _context.Add(modelo);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            if (ModelState.IsValid)
+            {
+                presupuesto.FechaCreacion = DateTime.Now;
+                presupuesto.Activo = true;
+                presupuesto.MontoEjecutado = 0;
+
+                _context.Add(presupuesto);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["TipoGastoId"] = new SelectList(await _context.TiposGasto.ToListAsync(), "Id", "Nombre");
+            return View(presupuesto);
         }
 
         public IActionResult Reporte()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDatosGrafico(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            try
+            {
+                var datos = new List<object>();
+                return Json(new { 
+                    success = true, 
+                    datos = datos,
+                    totalPresupuestado = 0,
+                    totalEjecutado = 0
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
         }
     }
 }
